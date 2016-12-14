@@ -11,6 +11,6 @@ test:
 deploy:
   stage: deploy
   script:
-    - rsync -av --progress . /home/dbsa215/server --exclude .git
+    - rsync -av --progress --omit-dir-times . /home/dbsa215/server --exclude .git
   only:
     - master
