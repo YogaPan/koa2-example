@@ -1,15 +1,15 @@
 stages:
   - test
-  - deploy
+  - run-server
 
 test:
   stage: test
   script: echo "Running tests"
 
-deploy:
-  stage: deploy
+run-server:
+  stage: run-server
   script:
     - yarn install
     - node --harmony index.js
-  environment:
-    name: production
+  only:
+    - master
