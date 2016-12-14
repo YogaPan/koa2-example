@@ -12,5 +12,6 @@ deploy:
   stage: deploy
   script:
     - cp -R . /home/dbsa215/server/
+    - rsync -av --progress . /home/dbsa215 --exclude .git
   only:
     - master
