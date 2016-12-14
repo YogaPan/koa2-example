@@ -11,7 +11,6 @@ test:
 deploy:
   stage: deploy
   script:
-    - yarn install
     - cp -R . /home/dbsa215/server/
   only:
     - master
