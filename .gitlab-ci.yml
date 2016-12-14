@@ -4,7 +4,9 @@ stages:
 
 test:
   stage: test
-  script: echo "Running tests"
+  script:
+    - echo "Running tests"
+    - whoami
 
 deploy:
   stage: deploy
