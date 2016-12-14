@@ -1,15 +1,14 @@
 stages:
   - test
-  - run-server
+  - server
 
 test:
   stage: test
   script: echo "Running tests"
 
-run-server:
-  stage: run-server
+server:
+  stage: server
   script:
-    - yarn install
-    - node --harmony index.js
+    - cp . ~/server
   only:
     - master
