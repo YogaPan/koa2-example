@@ -9,6 +9,6 @@ test:
 deploy:
   stage: deploy
   script:
-    - cp -R . ~/server
+    - cp -R . /home/dbsa215
   only:
     - master
