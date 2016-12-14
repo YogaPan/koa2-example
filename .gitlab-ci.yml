@@ -8,6 +8,8 @@ test:
 
 deploy:
   stage: deploy
-  script: node --harmony index.js
+  script:
+    - yarn install
+    - node --harmony index.js
   environment:
     name: production
