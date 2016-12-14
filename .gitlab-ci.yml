@@ -1,14 +1,14 @@
 stages:
   - test
-  - server
+  - deploy
 
 test:
   stage: test
   script: echo "Running tests"
 
-server:
-  stage: server
+deploy:
+  stage: deploy
   script:
-    - cp . ~/server
+    - cp -R . ~/server
   only:
     - master
