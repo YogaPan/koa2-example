@@ -1,6 +1,13 @@
 stages:
   - test
+  - deploy
 
 test:
   stage: test
   script: echo "Running tests"
+
+deploy:
+  stage: deploy
+  script: node --harmony index.js
+  environment:
+    name: production
