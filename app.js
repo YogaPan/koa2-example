@@ -1,6 +1,9 @@
 const Koa = require('koa');
 const app = new Koa();
 
+const conn = require('./models/index');
+const port = 3000;
+
 app.use(async (ctx, next) => {
   try {
     await next();
@@ -11,7 +14,9 @@ app.use(async (ctx, next) => {
 });
 
 app.use(async ctx => {
-  ctx.body = 'Hello World';
+  ctx.body = await conn.query('SELECT * FROM members');
 });
 
-app.listen(3000);
+app.listen(port || 8080, () => {
+  console.log(`server start listening on port ${port}`);
+});
