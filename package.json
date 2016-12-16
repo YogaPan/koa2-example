@@ -7,6 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "koa": "2",
+    "koa-router": "next",
     "mysql": "^2.12.0"
   },
   "scripts": {
