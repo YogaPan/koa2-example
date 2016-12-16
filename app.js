@@ -14,7 +14,7 @@ app.use(async (ctx, next) => {
 });
 
 app.use(async ctx => {
-  ctx.body = await conn.query('SELECT * FROM members');
+  ctx.body = await conn.query('SELECT * FROM Members');
 });
 
 app.listen(port || 8080, () => {
