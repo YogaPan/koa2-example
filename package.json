@@ -1,5 +1,14 @@
 {
+  "name": "travel-app-backend",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "http://140.136.148.215/Kyouken/travel-app-backend",
+  "author": "YogaPan",
+  "license": "MIT",
   "dependencies": {
     "koa": "2"
+  },
+  "scripts": {
+    "start": "sudo pm2 start app.js --name server --node-args=--harmony --watch"
   }
 }
