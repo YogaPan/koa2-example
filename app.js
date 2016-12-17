@@ -1,17 +1,23 @@
 const Koa = require('koa');
-const app = new Koa();
+const app = new Koa;
 
-const router = require('./router.js');
 const logger = require('koa-logger');
 const serve = require('koa-static');
+const bodyParser = require('koa-bodyparser');
 
-const conn = require('./models/index.js'); // MySQL connection.
+const router = require('./router.js');
 const port = 3000; // Set server listen port.
 
+// Show all request, include path, status code and spent time.
 app.use(logger());
+
+// Parse post form as json.
+app.use(bodyParser());
+
+// Serve static files in "public" directory.
 app.use(serve(__dirname + '/public'));
 
-// Catch all unhandled server internal errors and display message.
+// Catch all server internal errors and display message.
 app.use(async (ctx, next) => {
   try {
     await next();
@@ -20,7 +26,7 @@ app.use(async (ctx, next) => {
     ctx.status = err.status || 500;
 
     // Show error message to server side.
-    console.log(err);
+    console.error(err);
 
     // Show error message to client side.
     switch (ctx.accepts('html', 'json')) {
@@ -62,7 +68,7 @@ app.use(async (ctx, next) => {
 });
 
 // Use router.
-// All routes defined in router.js file.
+// All path defined in router.js file.
 app
   .use(router.routes())
   .use(router.allowedMethods());
