@@ -6,6 +6,9 @@ router
   .get('/api/members', async ctx => {
     ctx.body = await conn.query('SELECT * FROM Members');
   })
+  .get('/api/user', async ctx => { // garylai test
+    ctx.body = await conn.query('SELECT * FROM User');
+  })
   .post('/api/members', async ctx => {
     ctx.body = ctx.request.body; // Test Post method.
   })
