@@ -1,24 +1,15 @@
 const Koa = require('koa');
 const app = new Koa();
 
-const router = require('koa-router')();
+const router = require('./router.js');
 const logger = require('koa-logger');
 const serve = require('koa-static');
 
-const conn = require('./models/index'); // MySQL connection.
+const conn = require('./models/index.js'); // MySQL connection.
 const port = 3000; // Set server listen port.
 
 app.use(logger());
 app.use(serve(__dirname + '/public'));
-
-// Restful router.
-router
-  .get('/api/members', async ctx => {
-    ctx.body = await conn.query('SELECT * FROM Members');
-  })
-  .post('api/members', async ctx => {
-    // TODO
-  });
 
 // Catch all unhandled server internal errors and display message.
 app.use(async (ctx, next) => {
@@ -71,6 +62,7 @@ app.use(async (ctx, next) => {
 });
 
 // Use router.
+// All routes defined in router.js file.
 app
   .use(router.routes())
   .use(router.allowedMethods());
