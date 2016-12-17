@@ -2,17 +2,21 @@ import test from 'ava';
 import request from 'request';
 
 test('index page', async t => {
-  t.plan(1);
+  t.plan(2);
 
   const { res, body } = await getRequest('http://127.0.0.1:3000');
+
   t.is(res.statusCode, 200);
+  t.not(body, '');
 });
 
 test('get members', async t => {
-  t.plan(1);
+  t.plan(2);
 
   const { res, body } = await getRequest('http://127.0.0.1:3000/api/members');
+
   t.is(res.statusCode, 200);
+  t.true(isJsonString(body));
 });
 
 test('post members', async t => {
@@ -31,4 +35,13 @@ function getRequest(url) {
         reject(error);
     });
   });
+}
+
+function isJsonString(str) {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
 }
