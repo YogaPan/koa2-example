@@ -14,6 +14,11 @@
     "mysql": "^2.12.0"
   },
   "scripts": {
-    "start": "sudo pm2 start app.js --name server --node-args=--harmony --watch"
+    "start": "sudo pm2 start app.js --name server --node-args=--harmony --watch",
+    "test": "ava"
+  },
+  "devDependencies": {
+    "ava": "^0.17.0",
+    "request": "^2.79.0"
   }
 }
