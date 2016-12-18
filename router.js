@@ -25,21 +25,26 @@ router
 
 // User sign in and sign out
 router
-  .post('/api/signin', signoutRequired, async ctx => {
-    // TODO
+  .get('/api/signin', signoutRequired, async ctx => {
+    ctx.session.username = 'admin';
+    ctx.body = { message: 'sign in successfully!' };
   })
   .get('/api/signout', signinRequired, async ctx => {
     ctx.session = null;
     ctx.body = { message: 'sign out successfully' };
   });
 
-// WARNING!! DO NOT TOUCH IT!
-// This route is used to debug session.
+// WARNING!! DO NOT TOUCH THIS!
+// This route is used to DEBUG session.
 router
   .get('/api/view', async ctx => {
     ctx.session.count = ctx.session.count || 0;
     ctx.session.count += 1;
+
     ctx.body = ctx.session.count;
+  })
+  .get('/api/secret', signinRequired, async ctx => {
+    ctx.body = 'This is secret';
   });
 
 // Sign in and Sign out middleware.
@@ -54,13 +59,17 @@ async function signout() {
 }
 
 async function signinRequired(ctx, next) {
-  // TODO
-  await next();
+  if (ctx.session.username)
+    await next();
+  else
+    ctx.body = { message: 'You have to sign in' };
 }
 
 async function signoutRequired(ctx, next) {
-  // TODO
-  await next();
+  if (ctx.session.username)
+    ctx.body = { message: 'You have to sign out' };
+  else
+    await next();
 }
 
 module.exports = router;
