@@ -1,6 +1,27 @@
 const router = require('koa-router')();
 const conn = require('./models/index.js'); // MySQL connection.
 
+// WARNING!! DO NOT TOUCH IT!
+// This route is used to debug session.
+router
+  .get('/api/view', async ctx => {
+    ctx.session.count = ctx.session.count || 0;
+    ctx.session.count += 1;
+    ctx.body = ctx.session.count;
+  });
+
+// User sign in and sign out
+router
+  .post('/api/signin', async ctx => {
+    // TODO
+  })
+  .get('/api/signout', async ctx => {
+    ctx.session = null;
+    ctx.body = {
+      message: 'sign out successfully',
+    };
+  });
+
 // Restful router.
 router
   .get('/api/members', async ctx => {

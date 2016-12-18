@@ -3,10 +3,19 @@ const app = new Koa;
 
 const logger = require('koa-logger');
 const serve = require('koa-static');
+const session = require('koa-generic-session');
+const redisStore = require('koa-redis');
 const bodyParser = require('koa-bodyparser');
 
 const router = require('./router.js');
 const port = 3000; // Set server listen port.
+
+
+// Use redis to store session.
+app.keys = ['secret', 'you dont know'];
+app.use(session({
+  store: redisStore(),
+}));
 
 // Show all request, include path, status code and spent time.
 app.use(logger());
