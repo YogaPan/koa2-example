@@ -8,6 +8,7 @@
   "dependencies": {
     "koa": "2",
     "koa-bodyparser": "3",
+    "koa-convert": "^1.2.0",
     "koa-generic-session": "^1.11.4",
     "koa-logger": "2",
     "koa-redis": "^2.1.3",

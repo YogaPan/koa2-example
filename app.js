@@ -1,21 +1,23 @@
 const Koa = require('koa');
 const app = new Koa;
 
+const convert = require('koa-convert');
 const logger = require('koa-logger');
 const serve = require('koa-static');
 const session = require('koa-generic-session');
 const redisStore = require('koa-redis');
 const bodyParser = require('koa-bodyparser');
 
+const path = require('path');
+
 const router = require('./router.js');
 const port = 3000; // Set server listen port.
 
-
 // Use redis to store session.
 app.keys = ['secret', 'you dont know'];
-app.use(session({
+app.use(convert(session({
   store: redisStore(),
-}));
+})));
 
 // Show all request, include path, status code and spent time.
 app.use(logger());
@@ -24,7 +26,7 @@ app.use(logger());
 app.use(bodyParser());
 
 // Serve static files in "public" directory.
-app.use(serve(__dirname + '/public'));
+app.use(serve(path.join(__dirname, '/public')));
 
 // Catch all server internal errors and display message.
 app.use(async (ctx, next) => {
