@@ -10,17 +10,18 @@ router
   .get('/api/members', async ctx => {
     ctx.body = await conn.query('SELECT * FROM Members');
   })
-  .get('/api/user', async ctx => { // garylai test 
-    ctx.body = await conn.query('SELECT * FROM User');
-  })
   .post('/api/members', async ctx => {
-    ctx.body = ctx.request.body; // Test Post method.
+    await conn.query('INSERT INTO Members SET ?', ctx.request.body);
+    ctx.body = { message: 'insert data successfully!' };
   })
   .put('/api/members', async ctx => {
     // TODO
   })
   .del('/api/members', async ctx => {
     // TODO
+  })
+  .get('/api/user', async ctx => { // garylai test 
+    ctx.body = await conn.query('SELECT * FROM User');
   });
 
 // User sign in and sign out.
@@ -36,8 +37,8 @@ router
   .get('/api/signout', signinRequired, async ctx => {
     ctx.session = null;
     ctx.body = { message: 'sign out successfully!' };
-  });
-  .get('/api/register', signoutReqired, async ctx => {
+  })
+  .get('/api/register', signoutRequired, async ctx => {
     // TODO
     // - Insert data to database.
     // - Password need MD5 hasn and add salt.

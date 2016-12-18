@@ -17,9 +17,11 @@ connection.connect((err) => {
 
 
 module.exports = {
-  query: (queryString) => {
+  query: (queryString, data) => {
+    data = data || {}; // data is optional parameter.
+
     return new Promise((resolve, reject) => {
-      connection.query(queryString, (err, rows, fields) => {
+      connection.query(queryString, data, (err, rows, fields) => {
         if (err) reject(err);
 
         resolve(rows);
