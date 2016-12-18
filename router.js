@@ -23,15 +23,26 @@ router
     // TODO
   });
 
-// User sign in and sign out
+// User sign in and sign out.
 router
   .get('/api/signin', signoutRequired, async ctx => {
+    // TODO
+    // - Query Database.
+    // - Signin successfully.
+    // - Signin failed.
     ctx.session.username = 'admin';
     ctx.body = { message: 'sign in successfully!' };
   })
   .get('/api/signout', signinRequired, async ctx => {
     ctx.session = null;
-    ctx.body = { message: 'sign out successfully' };
+    ctx.body = { message: 'sign out successfully!' };
+  });
+  .get('/api/register', signoutReqired, async ctx => {
+    // TODO
+    // - Insert data to database.
+    // - Password need MD5 hasn and add salt.
+    // - Auto signin after regist successfully.
+    ctx.body = { message: 'sign in seccessfully!' };
   });
 
 // WARNING!! DO NOT TOUCH THIS!
@@ -48,6 +59,7 @@ router
   });
 
 // Sign in and Sign out middleware.
+// This is reusable middleware function
 async function signin(ctx, next) {
   // TODO
   await next();
