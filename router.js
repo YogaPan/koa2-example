@@ -1,4 +1,5 @@
 const router = require('koa-router')();
+const bcrypt = require('bcrypt');
 const conn = require('./models/index.js'); // MySQL connection.
 
 // Restful router. CRUD:
@@ -28,16 +29,22 @@ router
     form.password = ctx.request.body.password;
 
     const result = await conn.query(
-      'SELECT * FROM `users` WHERE `username` = ? AND `password` = ?',
-      [ form.username, form.password ]
+      'SELECT * FROM `users` WHERE `username` = ?',
+      [ form.username ]
     );
 
     if (typeof result !== 'undefined' && result.length > 0) {
-      ctx.session.username = result[0].username;
-      ctx.body = { message: 'Sign in successfully!' };
-    } else {
-      ctx.body = { message: 'Sign in Failed. Uncorrect username or password.' };
+      const hash = result[0].password;
+      const match = await bcrypt.compare(form.password, hash);
+
+      if (match) {
+        ctx.session.username = result[0].username;
+        ctx.body = { message: 'Sign in successfully!' };
+        return;
+      }
     }
+    // Failed.
+    ctx.body = { message: 'Sign in Failed. Uncorrect username or password.' };
   })
   .get('/api/signout', signinRequired, async ctx => {
     ctx.session = null;
@@ -49,7 +56,7 @@ router
     const form = {};
 
     form.username = ctx.request.body.username;
-    form.password = ctx.request.body.password;
+    form.password = await bcrypt.hash(ctx.request.body.password, 10);
 
     const result = await conn.query(
       'SELECT * FROM `users` WHERE `username` = ?',
