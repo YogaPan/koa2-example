@@ -7,7 +7,7 @@ const conn = require('./models/index.js'); // MySQL connection.
 // PUT  -> update
 // DEL  -> delete
 router
-  .get('/schedule', async ctx => {
+  .get('/api/schedule', signinRequired, async ctx => {
     const username = ctx.session.username;
 
     ctx.body = await conn.query(
