@@ -15,7 +15,6 @@ connection.connect((err) => {
   console.log('connected as id ' + connection.threadId);
 });
 
-
 module.exports = {
   query: (queryString, data) => {
     data = data || {}; // data is optional parameter.
