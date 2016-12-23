@@ -24,13 +24,13 @@ function generateRandomHash() {
   return token;
 }
 
-module.exports.sendMail = function() {
+module.exports.sendActivateMail = function(mailAddress) {
   const ActivateUrl = generateRandomHash();
 
   const data = {
     from: 'Urban Walks <me@samples.mailgun.org>',
-    to: 'yogapan85321@gmail.com',
-    subject: 'Hello',
+    to: mailAddress,
+    subject: 'Hello to Urban Walks!!',
     text: `Welcome to join our service!
     to activate your account you have to
     https://140.136.148.215/verify/${ActivateUrl}

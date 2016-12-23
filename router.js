@@ -1,6 +1,7 @@
 const router = require('koa-router')();
 const bcrypt = require('bcrypt');
 const conn = require('./models/index.js'); // MySQL connection.
+const mail = require('./mail.js');
 
 // Restful router. CRUD:
 // GET  -> read
@@ -19,6 +20,7 @@ router
   .get('/api/user', async ctx => { // garylai test 
     ctx.body = await conn.query('SELECT * FROM User');
   });
+
 
 // User signin signout and register.
 router
@@ -57,6 +59,7 @@ router
 
     form.username = ctx.request.body.username;
     form.password = await bcrypt.hash(ctx.request.body.password, 10);
+    form.email    = ctx.request.body.email;
 
     const result = await conn.query(
       'SELECT * FROM `users` WHERE `username` = ?',
@@ -67,10 +70,12 @@ router
       ctx.body = { message: 'This username has been taken.' };
     } else {
       await conn.query('INSERT INTO `users` SET ?', form);
+      mail.sendActivateMail(form.email);
       ctx.session.username = form.username;
       ctx.body = { message: 'Register successfully!' };
     }
   });
+
 
 // WARNING!! DO NOT TOUCH THIS!
 // This route is used to DEBUG session. Used by yogapan.
