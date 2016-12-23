@@ -1,7 +1,24 @@
 const router = require('koa-router')();
 const bcrypt = require('bcrypt');
-const conn = require('./models/index.js'); // MySQL connection.
+const mysql = require('./models/mysql.js');
+const redis = require('./models/redis.js');
 const mail = require('./mail.js');
+
+// Store in MYSQL:
+// users
+// @id       primary key
+// @username varchar(255)
+// @password varchar(255)
+// @email    varchar(255)
+// @active   bool
+//
+// Store in Redis
+// tokens
+// active:<token> -> <username>
+//
+// session
+// koa:sess:<token> -> <json data>
+
 
 // Restful router. CRUD:
 // GET  -> read
@@ -12,17 +29,21 @@ router
   .get('/api/schedule', signinRequired, async ctx => {
     const username = ctx.session.username;
 
-    ctx.body = await conn.query(
+    ctx.body = await mysql.query(
       'SELECT * FROM `schedule` WHERE `username` = ?',
       [ username ]
     );
   })
   .get('/api/user', async ctx => { // garylai test 
-    ctx.body = await conn.query('SELECT * FROM User');
+    ctx.body = await mysql.query('SELECT * FROM User');
   });
 
 
-// User signin signout and register.
+// Account System:
+// api/signin
+// api/signout
+// api/register
+// api/verify/:token
 router
   .post('/api/signin', signoutRequired, async ctx => {
     const form = {};
@@ -30,7 +51,7 @@ router
     form.username = ctx.request.body.username;
     form.password = ctx.request.body.password;
 
-    const result = await conn.query(
+    const result = await mysql.query(
       'SELECT * FROM `users` WHERE `username` = ?',
       [ form.username ]
     );
@@ -39,13 +60,14 @@ router
       const hash = result[0].password;
       const match = await bcrypt.compare(form.password, hash);
 
+      // Success!
       if (match) {
         ctx.session.username = result[0].username;
         ctx.body = { message: 'Sign in successfully!' };
         return;
       }
     }
-    // Failed.
+    // Failed!
     ctx.body = { message: 'Sign in Failed. Uncorrect username or password.' };
   })
   .get('/api/signout', signinRequired, async ctx => {
@@ -60,8 +82,9 @@ router
     form.username = ctx.request.body.username;
     form.password = await bcrypt.hash(ctx.request.body.password, 10);
     form.email    = ctx.request.body.email;
+    form.active   = false;
 
-    const result = await conn.query(
+    const result = await mysql.query(
       'SELECT * FROM `users` WHERE `username` = ?',
       [ form.username ]
     );
@@ -69,19 +92,39 @@ router
     if (typeof result !== 'undefined' && result.length > 0) {
       ctx.body = { message: 'This username has been taken.' };
     } else {
-      await conn.query('INSERT INTO `users` SET ?', form);
-      mail.sendActivateMail(form.email);
+      await mysql.query('INSERT INTO `users` SET ?', form);
+      const token = mail.sendActivateMail(form.email);
+
+      redis.set(`active:${token}`, form.username);
+
       ctx.session.username = form.username;
       ctx.body = { message: 'Register successfully!' };
     }
+  })
+  .get('/verify/:token', async ctx => {
+    const token = ctx.params.token;
+    const username = await redis.get(token);
+
+    // Invalid Token.
+    if (username === null) {
+      return ctx.body = { message: 'Invalid Token!' };
+    }
+
+    // Delete verify token.
+    redis.del(token);
+
+    // Activation user.
+    await mysql.query('UPDATE `users` SET `active` = `TRUE` WHERE `username` = ?', [ username ]);
+
+    ctx.body = { message: 'verify successfully!' };
   });
 
 
 // WARNING!! DO NOT TOUCH THIS!
-// This route is used to DEBUG session. Used by yogapan.
+// This route is used to DEBUG. Used by yogapan.
 router
   .get('/api/users', async ctx => {
-    ctx.body = await conn.query('SELECT * FROM `users`');
+    ctx.body = await mysql.query('SELECT * FROM `users`');
   })
   .get('/api/signin', signoutRequired, async ctx => {
     ctx.session.username = 'admin';
@@ -96,6 +139,7 @@ router
   .get('/api/secret', signinRequired, async ctx => {
     ctx.body = 'This is secret';
   });
+
 
 async function signinRequired(ctx, next) {
   if (ctx.session.username)

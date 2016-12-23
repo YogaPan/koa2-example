@@ -11,10 +11,11 @@ const bodyParser = require('koa-bodyparser');
 const path = require('path');
 
 const router = require('./router.js');
-const port = 3000; // Set server listen port.
+const config = require('./config.json');
+const port = config.server.port; // Set server listen port.
 
 // Use redis to store session.
-app.keys = ['secret', 'you dont know'];
+app.keys = config.session.keys;
 app.use(convert(session({
   store: redisStore(),
 })));
@@ -26,7 +27,7 @@ app.use(logger());
 app.use(bodyParser());
 
 // Serve static files in "public" directory.
-app.use(serve(path.join(__dirname, '/public')));
+app.use(serve(path.join(__dirname, config.server.public_directory)));
 
 // Catch all server internal errors and display message.
 app.use(async (ctx, next) => {

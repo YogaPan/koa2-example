@@ -1,0 +1,19 @@
+{
+  "server": {
+    "port": 3000,
+    "public_directory": "./public"
+  },
+  "mysql": {
+    "host": "localhost",
+    "user": "root",
+    "password": "Zk$8hLn",
+    "database": "test"
+  },
+  "session": {
+    "keys": [ "secret", "you don't know" ]
+  },
+  "mailgun": {
+    "api_key": "key-77491d2c5f1d570d274b2a87bb79fe47",
+    "domain": "sandboxe43ec0fedd914b0291cb621373abf1a5.mailgun.org"
+  }
+}
