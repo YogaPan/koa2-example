@@ -102,7 +102,7 @@ router
     }
   })
   .get('/verify/:token', async ctx => {
-    const token = ctx.params.token;
+    const token = 'active:' + ctx.params.token;
     const username = await redis.get(token);
 
     // Invalid Token.
@@ -114,7 +114,7 @@ router
     redis.del(token);
 
     // Activation user.
-    await mysql.query('UPDATE `users` SET `active` = `TRUE` WHERE `username` = ?', [ username ]);
+    await mysql.query('UPDATE `users` SET `active` = true WHERE `username` = ?', [ username ]);
 
     ctx.body = { message: 'verify successfully!' };
   });

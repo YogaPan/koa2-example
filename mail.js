@@ -1,7 +1,7 @@
-const config = require('./config.js');
+const config = require('./config.json');
 
 const api_key = config.mailgun.api_key;
-const domail  = confog.mailgun.domail;
+const domain  = config.mailgun.domain;
 const mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
 
 // GenerateRandom Token used by Activate URLS.
@@ -26,7 +26,7 @@ module.exports.sendActivateMail = function(mailAddress) {
     text: `
     Welcome to join our service!
     to activate your account you have to
-    https://140.136.148.215/verify/${token}
+    https://140.136.148.215:3000/verify/${token}
     `
   };
 
@@ -34,7 +34,7 @@ module.exports.sendActivateMail = function(mailAddress) {
   mailgun.messages().send(data, (error, body) => {
     if (error)
       return console.error(error);
-    console.log(body);
+    // console.log(body);
   });
 
   return token;

@@ -8,7 +8,7 @@ client.on('error', (err) => {
 
 module.exports.set = function(key, value) {
   return new Promise((resolve, reject) => {
-    client.set(key, expire, err => {
+    client.set(key, value, err => {
       if (err)
         return reject(err);
       resolve();
