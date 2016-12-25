@@ -12,7 +12,7 @@ const mail = require('./mail.js');
 // @email    varchar(255)
 // @active   bool
 //
-// Store in Redis
+// Store in Redis:
 // tokens
 // active:<token> -> <username>
 //
@@ -75,8 +75,6 @@ router
     ctx.body = { message: 'sign out successfully!' };
   })
   .post('/api/register', signoutRequired, async ctx => {
-    // TODO
-    // - Password need MD5 hash and add salt to encrypt.
     const form = {};
 
     form.username = ctx.request.body.username;

@@ -4,7 +4,7 @@ const api_key = config.mailgun.api_key;
 const domain  = config.mailgun.domain;
 const mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
 
-// GenerateRandom Token used by Activate URLS.
+// Generate random Token used by verify url.
 function generateRandomHash() {
   const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let token = '';
@@ -16,6 +16,7 @@ function generateRandomHash() {
   return token;
 }
 
+// Send verify email and return verify token.
 module.exports.sendActivateMail = function(mailAddress) {
   const token = generateRandomHash();
 
