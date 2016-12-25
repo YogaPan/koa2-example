@@ -26,7 +26,7 @@ module.exports.sendActivateMail = function(mailAddress) {
     text: `
     Welcome to join our service!
     to activate your account you have to
-    https://140.136.148.215:3000/verify/${token}
+    http://140.136.148.215:3000/verify/${token}
     `
   };
 
