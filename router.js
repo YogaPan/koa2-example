@@ -12,6 +12,12 @@ const mail = require('./mail.js');
 // @email    varchar(255)
 // @active   bool
 //
+// notes
+// @id      primary key
+// @content varchar(255)
+// @date    date
+// @uid     foriegn key
+//
 // Store in Redis:
 // tokens
 // active:<token> -> <username>
@@ -107,6 +113,8 @@ router
 // api/verify/:token
 router
   .post('/api/signin', signoutRequired, async ctx => {
+    // TODO
+    // 判斷是用email還是username登入
     const user = {};
 
     user.username = ctx.request.body.username;
@@ -143,22 +151,38 @@ router
     newUser.email    = ctx.request.body.email;
     newUser.active   = false;
 
-    const result = await mysql.query(
+    // Check is email format valid.
+    if (/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(newUser.email) === false) {
+      return ctx.body = { message: 'invalid email address.' };
+    }
+
+    // Check is username has been taken.
+    const usernameResult = await mysql.query(
       'SELECT * FROM `users` WHERE `username` = ?',
       [ newUser.username ]
     );
-
-    if (typeof result !== 'undefined' && result.length > 0) {
-      ctx.body = { message: 'This username has been taken.' };
-    } else {
-      await mysql.query('INSERT INTO `users` SET ?', newUser);
-      const token = mail.sendActivateMail(newUser.email);
-
-      redis.set(`active:${token}`, newUser.username);
-
-      ctx.session.uid = newUser.uid;
-      ctx.body = { message: 'Register successfully!' };
+    if (typeof usernameResult !== 'undefined' && usernameResult.length > 0) {
+      return ctx.body = { message: 'This username has been taken.' };
     }
+
+    // Check is email has been taken.
+    const emailResult = await mysql.query(
+      'SELECT * FROM `users` WHERE `email` = ?',
+      [ newUser.email ]
+    );
+    if (typeof emailResult !== 'undefined' && emailResult.length > 0) {
+      return ctx.body = { message: 'This email has been taken.' };
+    }
+
+    await mysql.query('INSERT INTO `users` SET ?', newUser);
+    const token = mail.sendActivateMail(newUser.email);
+
+    // Store token into redis cache.
+    redis.set(`active:${token}`, newUser.username);
+
+    // Auto login after register success.
+    ctx.session.uid = newUser.uid;
+    ctx.body = { message: 'Register successfully!' };
   })
   .get('/verify/:token', async ctx => {
     const token = 'active:' + ctx.params.token;
