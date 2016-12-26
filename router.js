@@ -29,20 +29,20 @@ const mail = require('./mail.js');
 // Notes
 router
   .get('/api/notes', signinRequired, async ctx => {
-    const username = ctx.session.username;
+    const uid = ctx.session.uid;
 
     // Return all notes belong to that user.
     ctx.body = await mysql.query(
-      'SELECT * FROM `notes` WHERE `username` = ?',
-      [ username ]
+      'SELECT * FROM `notes` WHERE `uid` = ?',
+      [ uid ]
     );
   })
   .post('/api/notes', signinRequired, async ctx => {
     const note = {};
 
-    note.username = ctx.session.username;
-    note.content  = ctx.request.body.content;
-    note.date     = ctx.request.body.date;
+    note.uid     = ctx.session.uid;
+    note.content = ctx.request.body.content;
+    note.date    = ctx.request.body.date;
 
     // Add new Note to SQL.
     await mysql.query(
@@ -79,11 +79,11 @@ router
 // Schedules
 router
   .get('/api/schedule', signinRequired, async ctx => {
-    const username = ctx.session.username;
+    const uid = ctx.session.uid;
 
     ctx.body = await mysql.query(
       'SELECT * FROM `schedule` WHERE `username` = ?',
-      [ username ]
+      [ uid ]
     );
   })
   .post('/api/schedule', signinRequired, async ctx => {
@@ -123,7 +123,7 @@ router
 
       // Success!
       if (match) {
-        ctx.session.username = result[0].username;
+        ctx.session.uid = result[0].id;
         ctx.body = { message: 'Sign in successfully!' };
         return;
       }
@@ -156,7 +156,7 @@ router
 
       redis.set(`active:${token}`, newUser.username);
 
-      ctx.session.username = newUser.username;
+      ctx.session.uid = newUser.uid;
       ctx.body = { message: 'Register successfully!' };
     }
   })
@@ -186,7 +186,7 @@ router
     ctx.body = await mysql.query('SELECT * FROM `users`');
   })
   .get('/api/signin', signoutRequired, async ctx => {
-    ctx.session.username = 'admin';
+    ctx.session.uid = 999999;
     ctx.body = { message: 'sign in successfully!' };
   })
   .get('/api/view', async ctx => {
@@ -196,7 +196,7 @@ router
     ctx.body = ctx.session.count;
   })
   .get('/api/secret', signinRequired, async ctx => {
-    ctx.body = 'This is secret';
+    ctx.body = { message: 'This is secret!' };
   });
 
 
