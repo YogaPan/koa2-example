@@ -2,7 +2,7 @@ const config = require('./config.json');
 
 const api_key = config.mailgun.api_key;
 const domain  = config.mailgun.domain;
-const mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
+const mailgun = require('mailgun-js')({ apiKey: api_key, domain: domain });
 
 // Generate random Token used by verify url.
 function generateRandomHash() {

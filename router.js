@@ -25,6 +25,58 @@ const mail = require('./mail.js');
 // POST -> create
 // PUT  -> update
 // DEL  -> delete
+
+// Notes
+router
+  .get('/api/notes', signinRequired, async ctx => {
+    const username = ctx.session.username;
+
+    // Return all notes belong to that user.
+    ctx.body = await mysql.query(
+      'SELECT * FROM `notes` WHERE `username` = ?',
+      [ username ]
+    );
+  })
+  .post('/api/notes', signinRequired, async ctx => {
+    const note = {};
+
+    note.username = ctx.session.username;
+    note.content  = ctx.request.body.content;
+    note.date     = ctx.request.body.date;
+
+    // Add new Note to SQL.
+    await mysql.query(
+      'INSERT INTO `notes` SET ?', note
+    );
+
+    ctx.body = { message: 'Add note successfully!' };
+  })
+  .put('/api/notes/:id', signinRequired, async ctx => {
+    const noteId = ctx.params.id;
+    const newContent = ctx.request.body.content;
+
+    // Update Note.
+    // WARNING: THIS OPERATION IS NOT SAFE. MUST VERIFY THIS USER OWN THIS NOTE.
+    await mysql.query(
+      'UPDATE `notes` SET `content` = ? WHERE `id` = ?', [ newContent, noteId ]
+    );
+
+
+    ctx.body = { message: 'Update note successfully!' };
+  })
+  .del('/api/notes/:id', signinRequired, async ctx => {
+    const noteId = ctx.params.id;
+
+    // Delete note by noteId.
+    // WARNING: THIS OPERATION IS NOT SAFE. MUST VERIFY THIS USER OWN THIS NOTE.
+    await mysql.query(
+      'DELETE FROM `notes` WHERE `id` = ?', [ noteId ]
+    );
+
+    ctx.body = { message: 'Delete note successfully!' };
+  });
+
+// Schedules
 router
   .get('/api/schedule', signinRequired, async ctx => {
     const username = ctx.session.username;
@@ -34,8 +86,17 @@ router
       [ username ]
     );
   })
-  .get('/api/user', async ctx => { // garylai test 
-    ctx.body = await mysql.query('SELECT * FROM User');
+  .post('/api/schedule', signinRequired, async ctx => {
+    // TODO
+    ctx.body = { message: 'Add schedule success!' };
+  })
+  .put('/api/schedule', signinRequired, async ctx => {
+    // TODO
+    ctx.body = { message: 'Change schedule success!' };
+  })
+  .del('/api/schedule', signinRequired, async ctx => {
+    // TODO
+    ctx.body = { messaeg: 'Delete schedule success!' };
   });
 
 
@@ -46,19 +107,19 @@ router
 // api/verify/:token
 router
   .post('/api/signin', signoutRequired, async ctx => {
-    const form = {};
+    const user = {};
 
-    form.username = ctx.request.body.username;
-    form.password = ctx.request.body.password;
+    user.username = ctx.request.body.username;
+    user.password = ctx.request.body.password;
 
     const result = await mysql.query(
       'SELECT * FROM `users` WHERE `username` = ?',
-      [ form.username ]
+      [ user.username ]
     );
 
     if (typeof result !== 'undefined' && result.length > 0) {
       const hash = result[0].password;
-      const match = await bcrypt.compare(form.password, hash);
+      const match = await bcrypt.compare(user.password, hash);
 
       // Success!
       if (match) {
@@ -75,27 +136,27 @@ router
     ctx.body = { message: 'sign out successfully!' };
   })
   .post('/api/register', signoutRequired, async ctx => {
-    const form = {};
+    const newUser = {};
 
-    form.username = ctx.request.body.username;
-    form.password = await bcrypt.hash(ctx.request.body.password, 10);
-    form.email    = ctx.request.body.email;
-    form.active   = false;
+    newUser.username = ctx.request.body.username;
+    newUser.password = await bcrypt.hash(ctx.request.body.password, 10);
+    newUser.email    = ctx.request.body.email;
+    newUser.active   = false;
 
     const result = await mysql.query(
       'SELECT * FROM `users` WHERE `username` = ?',
-      [ form.username ]
+      [ newUser.username ]
     );
 
     if (typeof result !== 'undefined' && result.length > 0) {
       ctx.body = { message: 'This username has been taken.' };
     } else {
-      await mysql.query('INSERT INTO `users` SET ?', form);
-      const token = mail.sendActivateMail(form.email);
+      await mysql.query('INSERT INTO `users` SET ?', newUser);
+      const token = mail.sendActivateMail(newUser.email);
 
-      redis.set(`active:${token}`, form.username);
+      redis.set(`active:${token}`, newUser.username);
 
-      ctx.session.username = form.username;
+      ctx.session.username = newUser.username;
       ctx.body = { message: 'Register successfully!' };
     }
   })
