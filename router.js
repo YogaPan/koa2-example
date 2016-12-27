@@ -70,7 +70,7 @@ router
     const userId = ctx.session.uid;
     const noteId = ctx.params.id;
 
-    await mysql.query('DELETE FROM `notes` WHERE `uid` = ? AND `noteId` = ?', [ userId, noteId ]);
+    await mysql.query('DELETE FROM `notes` WHERE `id` = ? AND `uid` = ?', [ noteId, userId ]);
 
     ctx.body = { message: 'Delete successfully!' };
   });
