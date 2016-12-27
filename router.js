@@ -58,28 +58,23 @@ router
     ctx.body = { message: 'Add note successfully!' };
   })
   .put('/api/notes/:id', signinRequired, async ctx => {
+    const userId = ctx.session.uid;
     const noteId = ctx.params.id;
     const newContent = ctx.request.body.content;
 
-    // Update Note.
-    // WARNING: THIS OPERATION IS NOT SAFE. MUST VERIFY THIS USER OWN THIS NOTE.
     await mysql.query(
-      'UPDATE `notes` SET `content` = ? WHERE `id` = ?', [ newContent, noteId ]
+      'UPDATE `notes` SET `content` = ? WHERE `id` = ? AND `uid` = ?', [ newContent, noteId, userId ]
     );
-
 
     ctx.body = { message: 'Update note successfully!' };
   })
   .del('/api/notes/:id', signinRequired, async ctx => {
+    const userId = ctx.session.uid;
     const noteId = ctx.params.id;
 
-    // Delete note by noteId.
-    // WARNING: THIS OPERATION IS NOT SAFE. MUST VERIFY THIS USER OWN THIS NOTE.
-    await mysql.query(
-      'DELETE FROM `notes` WHERE `id` = ?', [ noteId ]
-    );
+    await mysql.query('DELETE FROM `notes` WHERE `uid` = ? AND `noteId` = ?', [ userId, noteId ]);
 
-    ctx.body = { message: 'Delete note successfully!' };
+    ctx.body = { message: 'Delete successfully!' };
   });
 
 // Schedules
