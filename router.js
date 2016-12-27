@@ -225,14 +225,14 @@ router
 
 
 async function signinRequired(ctx, next) {
-  if (ctx.session.username)
+  if (ctx.session.uid)
     await next();
   else
     ctx.body = { message: 'You have to sign in' };
 }
 
 async function signoutRequired(ctx, next) {
-  if (ctx.session.username)
+  if (ctx.session.uid)
     ctx.body = { message: 'You have to sign out' };
   else
     await next();
