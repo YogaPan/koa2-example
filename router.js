@@ -5,18 +5,19 @@ const redis = require('./models/redis.js');
 const mail = require('./mail.js');
 
 // Store in MYSQL:
-// users
+// `users`
 // @id       primary key
-// @username varchar(255)
-// @password varchar(255)
-// @email    varchar(255)
+// @username varchar(255) NOT NULL
+// @password varchar(255) NOT NULL
+// @email    varchar(255) NOT NULL
 // @active   bool
 //
-// notes
-// @id      primary key
-// @content varchar(255)
-// @date    date
-// @uid     foriegn key
+// `notes`
+// @id          primary key
+// @content     varchar(255)
+// @created_at  timestamp
+// @updated_at  timestamp
+// @uid         foriegn key REFERNCES users(id)
 //
 // Store in Redis:
 // tokens
@@ -35,12 +36,12 @@ const mail = require('./mail.js');
 // Notes
 router
   .get('/api/notes', signinRequired, async ctx => {
-    const uid = ctx.session.uid;
+    const userId = ctx.session.uid;
 
     // Return all notes belong to that user.
     ctx.body = await mysql.query(
       'SELECT * FROM `notes` WHERE `uid` = ?',
-      [ uid ]
+      [ userId ]
     );
   })
   .post('/api/notes', signinRequired, async ctx => {
@@ -48,12 +49,9 @@ router
 
     note.uid     = ctx.session.uid;
     note.content = ctx.request.body.content;
-    note.date    = ctx.request.body.date;
 
     // Add new Note to SQL.
-    await mysql.query(
-      'INSERT INTO `notes` SET ?', note
-    );
+    await mysql.query('INSERT INTO `notes` SET ?', note);
 
     ctx.body = { message: 'Add note successfully!' };
   })
@@ -63,7 +61,7 @@ router
     const newContent = ctx.request.body.content;
 
     await mysql.query(
-      'UPDATE `notes` SET `content` = ? WHERE `id` = ? AND `uid` = ?', [ newContent, noteId, userId ]
+      'UPDATE `notes` SET `content` = ?, `updated_at` = NOW() WHERE `id` = ? AND `uid` = ?', [ newContent, noteId, userId ]
     );
 
     ctx.body = { message: 'Update note successfully!' };
@@ -98,6 +96,16 @@ router
   .del('/api/schedule', signinRequired, async ctx => {
     // TODO
     ctx.body = { messaeg: 'Delete schedule success!' };
+  });
+
+// Send back open data.
+router
+  .get('/api/toilet', signinRequired, async ctx => {
+    ctx.body = await mysql.query('SELECT * FROM toilet');
+  })
+  .get('/api/:keyword', signinRequired, async ctx => {
+    // TODO
+    const keyword = ctx.request.params;
   });
 
 
@@ -209,20 +217,23 @@ router
 // WARNING!! DO NOT TOUCH THIS!
 // This route is used to DEBUG. Used by yogapan.
 router
-  .get('/api/users', async ctx => {
+  .get('/debug/users', async ctx => {
     ctx.body = await mysql.query('SELECT * FROM `users`');
   })
-  .get('/api/signin', signoutRequired, async ctx => {
+  .get('/debug/notes', async ctx => {
+    ctx.body = await mysql.query('SELECT * FROM `notes`');
+  })
+  .get('/debug/signin', signoutRequired, async ctx => {
     ctx.session.uid = 999999;
     ctx.body = { message: 'sign in successfully!' };
   })
-  .get('/api/view', async ctx => {
+  .get('/debug/view', async ctx => {
     ctx.session.count = ctx.session.count || 0;
     ctx.session.count += 1;
 
     ctx.body = ctx.session.count;
   })
-  .get('/api/secret', signinRequired, async ctx => {
+  .get('/debug/secret', signinRequired, async ctx => {
     ctx.body = { message: 'This is secret!' };
   });
 
