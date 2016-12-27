@@ -113,17 +113,25 @@ router
 // api/verify/:token
 router
   .post('/api/signin', signoutRequired, async ctx => {
-    // TODO
-    // 判斷是用email還是username登入
     const user = {};
+    let result;
 
-    user.username = ctx.request.body.username;
     user.password = ctx.request.body.password;
 
-    const result = await mysql.query(
-      'SELECT * FROM `users` WHERE `username` = ?',
-      [ user.username ]
-    );
+    // Check use email or username.
+    if (/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(ctx.request.body.username) === true) {
+      user.email = ctx.request.body.username;
+      result = await mysql.query(
+        'SELECT * FROM `users` WHERE `email` = ?',
+        [ user.email ]
+      );
+    } else {
+      user.username = ctx.request.body.username;
+      result = await mysql.query(
+        'SELECT * FROM `users` WHERE `username` = ?',
+        [ user.username ]
+      );
+    }
 
     if (typeof result !== 'undefined' && result.length > 0) {
       const hash = result[0].password;
