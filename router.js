@@ -203,10 +203,10 @@ router
       SELECT
         *, (
           3959 * acos (
-            cos ( radians( 23.7 ) )
+            cos ( radians( ? ) )
             * cos( radians( Latitude ) )
-            * cos( radians( Longitude ) - radians( 120.43 ) )
-            + sin ( radians( 23.7 ) )
+            * cos( radians( Longitude ) - radians( ? ) )
+            + sin ( radians( ? ) )
             * sin( radians( Latitude ) )
           )
         ) AS distance
@@ -407,10 +407,10 @@ router
       SELECT
         *, (
           3959 * acos (
-            cos ( radians( 23.7 ) )
+            cos ( radians( ? ) )
             * cos( radians( Latitude ) )
-            * cos( radians( Longitude ) - radians( 120.43 ) )
-            + sin ( radians( 23.7 ) )
+            * cos( radians( Longitude ) - radians( ? ) )
+            + sin ( radians( ? ) )
             * sin( radians( Latitude ) )
           )
         ) AS distance
