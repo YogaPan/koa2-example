@@ -49,7 +49,7 @@ router
     const query = ctx.query;
 
     // Return all notes belong to that user.
-    if (query === {}) {
+    if (Object.keys(query).length === 0) {
       return ctx.body = await mysql.query(
         'SELECT * FROM `notes` WHERE `uid` = ?',
         [ userId ]
@@ -135,7 +135,7 @@ router
     const query = ctx.query;
 
     // Return 10 toilet data.
-    if (query === {}) {
+    if (Object.keys(query).length === 0) {
       return ctx.body = await mysql.query('SELECT * FROM `toilet` LIMIT 10');
     }
 
@@ -270,7 +270,7 @@ router
     const query = ctx.query;
 
     // Return all users.
-    if (query === {}) {
+    if (Object.keys(query).length === 0) {
       return ctx.body = await mysql.query('SELECT * FROM `users` LIMIT 10');
     }
 
@@ -291,7 +291,7 @@ router
   .get('/debug/notes', async ctx => {
     const query = ctx.query;
 
-    if (query === {}) {
+    if (Object.keys(query).length === 0) {
       return ctx.body = await mysql.query('SELECT * FROM `notes` LIMIT 10');
     }
 
@@ -311,7 +311,7 @@ router
   .get('/debug/toilet', async ctx => {
     const query = ctx.query;
 
-    if (query === {}) {
+    if (Object.keys(query).length === 0) {
       return ctx.body = await mysql.query('SELECT * FROM `toilet` LIMIT 10');
     }
 
