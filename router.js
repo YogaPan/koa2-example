@@ -19,6 +19,15 @@ const mail = require('./mail.js');
 // @updated_at  timestamp
 // @uid         foriegn key REFERNCES users(id)
 //
+// `toilet`
+// @Number      primary key
+// @Latitude    double
+// @Longitude   double
+// @Name        varchar(20)
+// @Address     varchar(30)
+// @Type        varchar(20)
+// @Grade       varchar(5)
+//
 // Store in Redis:
 // tokens
 // active:<token> -> <username>
@@ -101,11 +110,17 @@ router
 // Send back open data.
 router
   .get('/api/toilet', signinRequired, async ctx => {
-    ctx.body = await mysql.query('SELECT * FROM toilet');
+    // Get 10 toilet data.
+    ctx.body = await mysql.query('SELECT * FROM toilet LIMIT 10');
   })
-  .get('/api/:keyword', signinRequired, async ctx => {
-    // TODO
+  .get('/api/toilet/:keyword', signinRequired, async ctx => {
+    // Get toilet data by address.
     const keyword = ctx.request.params;
+
+    ctx.body = await mysql.query(
+      'SELECT * FROM `toilet` WHERE `Address` LIKE ? LIMIT 10',
+      [ '%'+keyword+'%' ]
+    );
   });
 
 
