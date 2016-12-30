@@ -318,7 +318,7 @@ router
     if (Object.prototype.hasOwnProperty.call(query, 'address')) {
       return ctx.body = await mysql.query(
         'SELECT * FROM `toilet` WHERE `Address` LIKE ? LIMIT 10',
-        [ query.address ]
+        [ '%'+query.address+'%' ]
       );
     }
 
