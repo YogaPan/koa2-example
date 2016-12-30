@@ -46,11 +46,34 @@ const mail = require('./mail.js');
 router
   .get('/api/notes', signinRequired, async ctx => {
     const userId = ctx.session.uid;
+    const query = ctx.query;
 
     // Return all notes belong to that user.
+    if (query === {}) {
+      return ctx.body = await mysql.query(
+        'SELECT * FROM `notes` WHERE `uid` = ?',
+        [ userId ]
+      );
+    }
+
+    // Return notes by content.
+    if (Object.prototype.hasOwnProperty.call(query, 'content')) {
+      return ctx.body = await mysql.query(
+        'SELECT * FROM `notes` WHERE content LIKE ? AND `uid` = ? LIMIT 10',
+        [ '%'+query.content+'%', userId ]
+      );
+    }
+
+    // Invalid Query.
+    ctx.body = { message: 'Invalid Query' };
+  })
+  .get('/api/notes/:id', signinRequired, async ctx => {
+    const userId = ctx.session.uid;
+
+    // Return notes by id.
     ctx.body = await mysql.query(
-      'SELECT * FROM `notes` WHERE `uid` = ?',
-      [ userId ]
+      'SELECT * FROM `notes` WHERE `uid` = ? AND `id` = ?',
+      [ userId, noteId ]
     );
   })
   .post('/api/notes', signinRequired, async ctx => {
@@ -61,7 +84,6 @@ router
 
     // Add new Note to SQL.
     await mysql.query('INSERT INTO `notes` SET ?', note);
-
     ctx.body = { message: 'Add note successfully!' };
   })
   .put('/api/notes/:id', signinRequired, async ctx => {
@@ -70,7 +92,8 @@ router
     const newContent = ctx.request.body.content;
 
     await mysql.query(
-      'UPDATE `notes` SET `content` = ?, `updated_at` = NOW() WHERE `id` = ? AND `uid` = ?', [ newContent, noteId, userId ]
+      'UPDATE `notes` SET `content` = ?, `updated_at` = NOW() WHERE `id` = ? AND `uid` = ?',
+      [ newContent, noteId, userId ]
     );
 
     ctx.body = { message: 'Update note successfully!' };
@@ -80,7 +103,6 @@ router
     const noteId = ctx.params.id;
 
     await mysql.query('DELETE FROM `notes` WHERE `id` = ? AND `uid` = ?', [ noteId, userId ]);
-
     ctx.body = { message: 'Delete successfully!' };
   });
 
@@ -110,20 +132,28 @@ router
 // Send back open data.
 router
   .get('/api/toilet', signinRequired, async ctx => {
-    // Get 10 toilet data.
-    ctx.body = await mysql.query('SELECT * FROM toilet LIMIT 10');
+    const query = ctx.query;
+
+    // Return 10 toilet data.
+    if (query === {}) {
+      return ctx.body = await mysql.query('SELECT * FROM `toilet` LIMIT 10');
+    }
+
+    // Return all toilet by address.
+    if (Object.prototype.hasOwnProperty.call(query, 'address')) {
+      return ctx.body = await mysql.query(
+        'SELECT * FROM `toilet` WHERE `Address` LIKE ? LIMIT 10',
+        [ query.address ]
+      );
+    }
+
+    ctx.body = { message: 'Invalid Query' };
   })
-  .get('/api/toilet/:keyword', signinRequired, async ctx => {
-    // Get toilet data by address.
-    let keyword = ctx.params.keyword;
-
-    // URL decode.
-    keyword = decodeURIComponent(keyword);
-    console.log(keyword);
-
+  .get('/api/toilet/:id', signinRequired, async ctx => {
+    const toiletId = ctx.params.id;
     ctx.body = await mysql.query(
-      'SELECT * FROM `toilet` WHERE `Address` LIKE ? LIMIT 10',
-      [ '%'+keyword+'%' ]
+      'SELECT * FROM `toilet` WHERE `Number` = ?',
+      [ toiletId ]
     );
   });
 
@@ -237,25 +267,66 @@ router
 // This route is used to DEBUG. Used by yogapan.
 router
   .get('/debug/users', async ctx => {
-    ctx.body = await mysql.query('SELECT * FROM `users`');
+    const query = ctx.query;
+
+    // Return all users.
+    if (query === {}) {
+      return ctx.body = await mysql.query('SELECT * FROM `users` LIMIT 10');
+    }
+
+    // Return users search by username.
+    if (Object.prototype.hasOwnProperty.call(query, 'username')) {
+      return ctx.body = await mysql.query(
+        'SELECT * FROM `users` WHERE `username` LIKE ? LIMIT 10',
+        [ '%'+query.username+'%' ]
+      );
+    }
+
+    ctx.body = { message: 'Invalid Query.' };
+  })
+  .get('debug/users/:id', async ctx => {
+    const userId = ctx.params.id;
+    ctx.body = await mysql.query('SELECT * FROM `users` WHERE id = ?', [ userId ]);
   })
   .get('/debug/notes', async ctx => {
-    ctx.body = await mysql.query('SELECT * FROM `notes`');
+    const query = ctx.query;
+
+    if (query === {}) {
+      return ctx.body = await mysql.query('SELECT * FROM `notes` LIMIT 10');
+    }
+
+    if (Object.prototype.hasOwnProperty.call(query, 'content')) {
+      return ctx.body = await mysql.query(
+        'SELECT * FROM `notes` WHERE content LIKE ? LIMIT 10',
+        [ '%'+query.content+'%' ]
+      );
+    }
+
+    ctx.body = { message: 'Invalid Query.' };
+  })
+  .get('/debug/notes/:id', async ctx => {
+    const noteId = ctx.params.id;
+    ctx.body = await mysql.query('SELECT * FROM `notes` WHERE `id` = ?', [ noteId ]);
   })
   .get('/debug/toilet', async ctx => {
-    ctx.body = await mysql.query('SELECT * FROM `toilet` LIMIT 10');
+    const query = ctx.query;
+
+    if (query === {}) {
+      return ctx.body = await mysql.query('SELECT * FROM `toilet` LIMIT 10');
+    }
+
+    if (Object.prototype.hasOwnProperty.call(query, 'address')) {
+      return ctx.body = await mysql.query(
+        'SELECT * FROM `toilet` WHERE `Address` LIKE ? LIMIT 10',
+        [ query.address ]
+      );
+    }
+
+    ctx.body = { message: 'Invalid Query' };
   })
-  .get('/debug/toilet/:keyword', async ctx => {
-    let keyword = ctx.params.keyword;
-
-    // URL decode.
-    keyword = decodeURIComponent(keyword);
-    console.log(keyword);
-
-    ctx.body = await mysql.query(
-      'SELECT * FROM `toilet` WHERE `Address` LIKE ? LIMIT 10',
-      [ '%'+keyword+'%' ]
-    );
+  .get('/debug/toilet/:id', async ctx => {
+    const toiletId = ctx.params.id;
+    ctx.body = await mysql.query('SELECT * FROM `toilet` WHERE `Number` = ?', [ toiletId ]);
   })
   .get('/debug/secret', signinRequired, async ctx => {
     ctx.body = { message: 'This is secret!' };
