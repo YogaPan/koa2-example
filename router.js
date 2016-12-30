@@ -241,7 +241,7 @@ router
   .get('/debug/toilet', async ctx => {
     ctx.body = await mysql.query('SELECT * FROM `toilet` LIMIT 5');
   })
-  .get('/debug/toilet/:keyword', signinRequired, async ctx => {
+  .get('/debug/toilet/:keyword', async ctx => {
     const keyword = ctx.request.params;
 
     ctx.body = await mysql.query(
