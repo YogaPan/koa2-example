@@ -17,7 +17,22 @@ const mail = require('./mail.js');
 // @content     varchar(255)
 // @created_at  timestamp
 // @updated_at  timestamp
-// @uid         foriegn key REFERNCES users(id)
+// @uid         foriegn key REFERENCES users(id)
+//
+// `schedules`
+// @id          primary key
+// @name        varchar(255)
+// @address     varchar(255)
+// @lat         double
+// @lng         double
+// @arrive_time timestamp
+// @uid         foriegn key REFERENCES users(id)
+//
+// `share`
+// @id          primary key
+// @uid1        foriegn key REFERENCES users(id)
+// @uid2        foriegn key REFERENCES users(id)
+//
 //
 // `toilet`
 // @Number      primary key
@@ -108,24 +123,54 @@ router
 
 // Schedules
 router
-  .get('/api/schedule', signinRequired, async ctx => {
-    const uid = ctx.session.uid;
+  .get('/api/schedules', signinRequired, async ctx => {
+    const userId = ctx.session.uid;
 
     ctx.body = await mysql.query(
-      'SELECT * FROM `schedule` WHERE `username` = ?',
-      [ uid ]
+      'SELECT * FROM `schedule` WHERE `uid` = ?',
+      [ userId ]
+    );
+  })
+  .get('/api/schedules/:id', signinRequired, async ctx => {
+    const userId = ctx.session.uid;
+    const scheduleId = ctx.params.id;
+
+    ctx.body = await mysql.query(
+      'SELECT * FROM `schedules` WHERE `id` = ? AND `uid` = ?',
+      [ scheduleId, userId ]
     );
   })
   .post('/api/schedule', signinRequired, async ctx => {
-    // TODO
+    const newSchedule = {
+      name:    ctx.request.body.name,
+      address: ctx.request.body.address,
+      lat:     ctx.request.body.lat,
+      lng:     ctx.request.body.lng,
+      uid:     ctx.session.uid,
+    };
+
+    // Insert new schedule into database.
+    await mysql.query(
+      'INSERT INTO `schedules` SET ?',
+      newSchedule
+    );
+
     ctx.body = { message: 'Add schedule success!' };
   })
-  .put('/api/schedule', signinRequired, async ctx => {
-    // TODO
+  .put('/api/schedules/:id', signinRequired, async ctx => {
+    const userId = ctx.session.uid;
+    const { name, address, lat, lng } = ctx.request.body;
+
+    await mysql.query(
+      'UPDATE `schedules` SET name = ?, address = ?, lat = ?, lng = ?  WHERE `id` = ? `uid` = ?',
+      [ name, address, lat, lng, scheduleId, userId ]
+    );
+
     ctx.body = { message: 'Change schedule success!' };
   })
-  .del('/api/schedule', signinRequired, async ctx => {
-    // TODO
+  .del('/api/schedules/:id', signinRequired, async ctx => {
+    const scheduleId = ctx.params.id;
+    await mysql.query('DELETE FROM `schedules` WHERE `id` = ?', [ scheduleId ]);
     ctx.body = { messaeg: 'Delete schedule success!' };
   });
 
@@ -307,6 +352,17 @@ router
   .get('/debug/notes/:id', async ctx => {
     const noteId = ctx.params.id;
     ctx.body = await mysql.query('SELECT * FROM `notes` WHERE `id` = ?', [ noteId ]);
+  })
+  .get('/debug/schedules', async ctx => {
+    ctx.body = await mysql.query('SELECT * FROM `schedules`');
+  })
+  .get('/debug/schedules/:id', async ctx => {
+    const scheduleId = ctx.params.id;
+
+    ctx.body = await mysql.query(
+      'SELECT * FROM `schedules` WHERE `id` = ?',
+      [ scheduleId ]
+    );
   })
   .get('/debug/toilet', async ctx => {
     const query = ctx.query;
