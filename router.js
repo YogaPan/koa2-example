@@ -115,7 +115,11 @@ router
   })
   .get('/api/toilet/:keyword', signinRequired, async ctx => {
     // Get toilet data by address.
-    const keyword = ctx.request.params;
+    let keyword = ctx.params.keyword;
+
+    // URL decode.
+    keyword = decodeURIComponent(keyword);
+    console.log(keyword);
 
     ctx.body = await mysql.query(
       'SELECT * FROM `toilet` WHERE `Address` LIKE ? LIMIT 10',
@@ -239,10 +243,14 @@ router
     ctx.body = await mysql.query('SELECT * FROM `notes`');
   })
   .get('/debug/toilet', async ctx => {
-    ctx.body = await mysql.query('SELECT * FROM `toilet` LIMIT 5');
+    ctx.body = await mysql.query('SELECT * FROM `toilet` LIMIT 10');
   })
   .get('/debug/toilet/:keyword', async ctx => {
-    const keyword = ctx.request.params;
+    let keyword = ctx.params.keyword;
+
+    // URL decode.
+    keyword = decodeURIComponent(keyword);
+    console.log(keyword);
 
     ctx.body = await mysql.query(
       'SELECT * FROM `toilet` WHERE `Address` LIKE ? LIMIT 10',
