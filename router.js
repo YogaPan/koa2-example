@@ -248,7 +248,7 @@ router
       'SELECT * FROM `toilet` WHERE `Address` LIKE ? LIMIT 10',
       [ '%'+keyword+'%' ]
     );
-  });
+  })
   .get('/debug/secret', signinRequired, async ctx => {
     ctx.body = { message: 'This is secret!' };
   });
