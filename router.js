@@ -211,7 +211,7 @@ router
           )
         ) AS distance
       FROM toilet
-      HAVING distance < 0.5
+      HAVING distance 5
       ORDER BY distance
       LIMIT 0 , 20;
       `,
@@ -415,7 +415,7 @@ router
           )
         ) AS distance
       FROM toilet
-      HAVING distance < 0.5
+      HAVING distance < 5
       ORDER BY distance
       LIMIT 0 , 20;
       `,
