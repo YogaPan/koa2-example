@@ -6,18 +6,18 @@ const mail = require('./mail.js');
 
 // Store in MYSQL:
 // `users`
-// @id       primary key
-// @username varchar(255) NOT NULL
-// @password varchar(255) NOT NULL
-// @email    varchar(255) NOT NULL
-// @active   bool
+// @id          primary key
+// @username    varchar(255)
+// @password    varchar(255)
+// @email       varchar(255)
+// @active      bool
 //
 // `notes`
 // @id          primary key
 // @content     varchar(255)
 // @created_at  timestamp
 // @updated_at  timestamp
-// @uid         foriegn key REFERENCES users(id)
+// @uid         foreign key REFERENCES users(id)
 //
 // `schedules`
 // @id          primary key
@@ -26,7 +26,15 @@ const mail = require('./mail.js');
 // @lat         double
 // @lng         double
 // @arrive_time timestamp
-// @uid         foriegn key REFERENCES users(id)
+// @uid         foreign key REFERENCES users(id)
+//
+// `paths`
+// @id          primary key
+// @lat         double
+// @lng         double
+// @address     varchar(255)
+// @arrive_time timestamp
+// @sid         foriegn key REFERENCES schedules(id)
 //
 // `share`
 // @id          primary key
@@ -177,22 +185,38 @@ router
 // Send back open data.
 router
   .get('/api/toilet', signinRequired, async ctx => {
-    const query = ctx.query;
-
-    // Return 10 toilet data.
-    if (Object.keys(query).length === 0) {
-      return ctx.body = await mysql.query('SELECT * FROM `toilet` LIMIT 10');
+    // Check query string format.
+    // Correct example: /api/toilet?lat=127.321&lng=21.4512
+    if (Object.keys(ctx.query).length !== 2) {
+      return ctx.body = { message: 'Wrong querystring.' };
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.query, 'lat') === false) {
+      return ctx.body = { message: 'Missing querystring "lat".' };
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.query, 'lng') === false) {
+      return ctx.body = { message: 'Missing querystring "lng".' };
     }
 
-    // Return all toilet by address.
-    if (Object.prototype.hasOwnProperty.call(query, 'address')) {
-      return ctx.body = await mysql.query(
-        'SELECT * FROM `toilet` WHERE `Address` LIKE ? LIMIT 10',
-        [ query.address ]
-      );
-    }
-
-    ctx.body = { message: 'Invalid Query' };
+    const { lat, lng } = ctx.query;
+    ctx.body = await mysql.query(
+      `
+      SELECT
+      Number, (
+        3959 * acos (
+          cos ( radians( ? ) )
+          * cos( radians( Latitude ) )
+          * cos( radians( Longitude ) - radians( ? ) )
+          + sin ( radians( ? ) )
+          * sin( radians( Latitude ) )
+        )
+      ) AS distance, Latitude, Longitude
+      FROM toilet
+      HAVING distance < 1 
+      ORDER BY distance
+      LIMIT 0 , 20;
+      `,
+      [ lat, lng, lat ]
+    );
   })
   .get('/api/toilet/:id', signinRequired, async ctx => {
     const toiletId = ctx.params.id;
@@ -365,20 +389,38 @@ router
     );
   })
   .get('/debug/toilet', async ctx => {
-    const query = ctx.query;
-
-    if (Object.keys(query).length === 0) {
-      return ctx.body = await mysql.query('SELECT * FROM `toilet` LIMIT 10');
+    // Check query string format.
+    // Correct example: /debug/toilet?lat=127.321&lng=21.4512
+    if (Object.keys(ctx.query).length !== 2) {
+      return ctx.body = { message: 'Wrong querystring.' };
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.query, 'lat') === false) {
+      return ctx.body = { message: 'Missing querystring "lat".' };
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.query, 'lng') === false) {
+      return ctx.body = { message: 'Missing querystring "lng".' };
     }
 
-    if (Object.prototype.hasOwnProperty.call(query, 'address')) {
-      return ctx.body = await mysql.query(
-        'SELECT * FROM `toilet` WHERE `Address` LIKE ? LIMIT 10',
-        [ '%'+query.address+'%' ]
-      );
-    }
-
-    ctx.body = { message: 'Invalid Query' };
+    const { lat, lng } = ctx.query;
+    ctx.body = await mysql.query(
+      `
+      SELECT
+      Number, (
+        3959 * acos (
+          cos ( radians( ? ) )
+          * cos( radians( Latitude ) )
+          * cos( radians( Longitude ) - radians( ? ) )
+          + sin ( radians( ? ) )
+          * sin( radians( Latitude ) )
+        )
+      ) AS distance, Latitude, Longitude
+      FROM toilet
+      HAVING distance < 1
+      ORDER BY distance
+      LIMIT 0 , 20;
+      `,
+      [ lat, lng, lat ]
+    );
   })
   .get('/debug/toilet/:id', async ctx => {
     const toiletId = ctx.params.id;
