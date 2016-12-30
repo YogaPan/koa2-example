@@ -201,17 +201,17 @@ router
     ctx.body = await mysql.query(
       `
       SELECT
-      Number, (
-        3959 * acos (
-          cos ( radians( ? ) )
-          * cos( radians( Latitude ) )
-          * cos( radians( Longitude ) - radians( ? ) )
-          + sin ( radians( ? ) )
-          * sin( radians( Latitude ) )
-        )
-      ) AS distance, Latitude, Longitude
+        *, (
+          3959 * acos (
+            cos ( radians( 23.7 ) )
+            * cos( radians( Latitude ) )
+            * cos( radians( Longitude ) - radians( 120.43 ) )
+            + sin ( radians( 23.7 ) )
+            * sin( radians( Latitude ) )
+          )
+        ) AS distance
       FROM toilet
-      HAVING distance < 1 
+      HAVING distance < 0.5
       ORDER BY distance
       LIMIT 0 , 20;
       `,
@@ -405,17 +405,17 @@ router
     ctx.body = await mysql.query(
       `
       SELECT
-      Number, (
-        3959 * acos (
-          cos ( radians( ? ) )
-          * cos( radians( Latitude ) )
-          * cos( radians( Longitude ) - radians( ? ) )
-          + sin ( radians( ? ) )
-          * sin( radians( Latitude ) )
-        )
-      ) AS distance, Latitude, Longitude
+        *, (
+          3959 * acos (
+            cos ( radians( 23.7 ) )
+            * cos( radians( Latitude ) )
+            * cos( radians( Longitude ) - radians( 120.43 ) )
+            + sin ( radians( 23.7 ) )
+            * sin( radians( Latitude ) )
+          )
+        ) AS distance
       FROM toilet
-      HAVING distance < 1
+      HAVING distance < 0.5
       ORDER BY distance
       LIMIT 0 , 20;
       `,
