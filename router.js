@@ -238,16 +238,17 @@ router
   .get('/debug/notes', async ctx => {
     ctx.body = await mysql.query('SELECT * FROM `notes`');
   })
-  .get('/debug/signin', signoutRequired, async ctx => {
-    ctx.session.uid = 999999;
-    ctx.body = { message: 'sign in successfully!' };
+  .get('/debug/toilet', async ctx => {
+    ctx.body = await mysql.query('SELECT * FROM `toilet` LIMIT 5');
   })
-  .get('/debug/view', async ctx => {
-    ctx.session.count = ctx.session.count || 0;
-    ctx.session.count += 1;
+  .get('/debug/toilet/:keyword', signinRequired, async ctx => {
+    const keyword = ctx.request.params;
 
-    ctx.body = ctx.session.count;
-  })
+    ctx.body = await mysql.query(
+      'SELECT * FROM `toilet` WHERE `Address` LIKE ? LIMIT 10',
+      [ '%'+keyword+'%' ]
+    );
+  });
   .get('/debug/secret', signinRequired, async ctx => {
     ctx.body = { message: 'This is secret!' };
   });
