@@ -230,13 +230,74 @@ router
       [ lat, lng, lat ]
     );
   })
-  .get('/api/toilet/:id', signinRequired, async ctx => {
-    const toiletId = ctx.params.id;
+  .get('/api/hotel', signinRequired, async ctx => {
+    // Check query string format.
+    // Correct example: /api/toilet?lat=127.321&lng=21.4512
+    if (Object.keys(ctx.query).length !== 2) {
+      return ctx.body = { message: 'Wrong querystring.' };
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.query, 'lat') === false) {
+      return ctx.body = { message: 'Missing querystring "lat".' };
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.query, 'lng') === false) {
+      return ctx.body = { message: 'Missing querystring "lng".' };
+    }
+
+    const { lat, lng } = ctx.query;
     ctx.body = await mysql.query(
-      'SELECT * FROM `toilet` WHERE `Number` = ?',
-      [ toiletId ]
+      `
+      SELECT
+        *, (
+          6371 * acos (
+            cos ( radians( ? ) )
+            * cos( radians( Latitude ) )
+            * cos( radians( Longitude ) - radians( ? ) )
+            + sin ( radians( ? ) )
+            * sin( radians( Latitude ) )
+          )
+        ) AS distance
+      FROM hotel
+      HAVING distance 25
+      ORDER BY distance
+      LIMIT 0 , 20;
+      `,
+      [ lat, lng, lat ]
     );
-  });
+  })
+  .get('/api/attraction', signinRequired, async ctx => {
+    // Check query string format.
+    // Correct example: /api/toilet?lat=127.321&lng=21.4512
+    if (Object.keys(ctx.query).length !== 2) {
+      return ctx.body = { message: 'Wrong querystring.' };
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.query, 'lat') === false) {
+      return ctx.body = { message: 'Missing querystring "lat".' };
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.query, 'lng') === false) {
+      return ctx.body = { message: 'Missing querystring "lng".' };
+    }
+
+    const { lat, lng } = ctx.query;
+    ctx.body = await mysql.query(
+      `
+      SELECT
+        *, (
+          6371 * acos (
+            cos ( radians( ? ) )
+            * cos( radians( Latitude ) )
+            * cos( radians( Longitude ) - radians( ? ) )
+            + sin ( radians( ? ) )
+            * sin( radians( Latitude ) )
+          )
+        ) AS distance
+      FROM Attraction
+      HAVING distance 25
+      ORDER BY distance
+      LIMIT 0 , 20;
+      `,
+      [ lat, lng, lat ]
+    );
+  })
 
 
 // Account System:
@@ -431,6 +492,74 @@ router
         ) AS distance
       FROM toilet
       HAVING distance < 5
+      ORDER BY distance
+      LIMIT 0 , 20;
+      `,
+      [ lat, lng, lat ]
+    );
+  })
+  .get('/debug/hotel', async ctx => {
+    // Check query string format.
+    // Correct example: /debug/toilet?lat=127.321&lng=21.4512
+    if (Object.keys(ctx.query).length !== 2) {
+      return ctx.body = { message: 'Wrong querystring.' };
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.query, 'lat') === false) {
+      return ctx.body = { message: 'Missing querystring "lat".' };
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.query, 'lng') === false) {
+      return ctx.body = { message: 'Missing querystring "lng".' };
+    }
+
+    const { lat, lng } = ctx.query;
+    ctx.body = await mysql.query(
+      `
+      SELECT
+        *, (
+          6371 * acos (
+            cos ( radians( ? ) )
+            * cos( radians( Latitude ) )
+            * cos( radians( Longitude ) - radians( ? ) )
+            + sin ( radians( ? ) )
+            * sin( radians( Latitude ) )
+          )
+        ) AS distance
+      FROM hotel
+      HAVING distance < 25
+      ORDER BY distance
+      LIMIT 0 , 20;
+      `,
+      [ lat, lng, lat ]
+    );
+  })
+  .get('/debug/attraction', async ctx => {
+    // Check query string format.
+    // Correct example: /debug/toilet?lat=127.321&lng=21.4512
+    if (Object.keys(ctx.query).length !== 2) {
+      return ctx.body = { message: 'Wrong querystring.' };
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.query, 'lat') === false) {
+      return ctx.body = { message: 'Missing querystring "lat".' };
+    }
+    if (Object.prototype.hasOwnProperty.call(ctx.query, 'lng') === false) {
+      return ctx.body = { message: 'Missing querystring "lng".' };
+    }
+
+    const { lat, lng } = ctx.query;
+    ctx.body = await mysql.query(
+      `
+      SELECT
+        *, (
+          6371 * acos (
+            cos ( radians( ? ) )
+            * cos( radians( Latitude ) )
+            * cos( radians( Longitude ) - radians( ? ) )
+            + sin ( radians( ? ) )
+            * sin( radians( Latitude ) )
+          )
+        ) AS distance
+      FROM Attraction
+      HAVING distance < 25
       ORDER BY distance
       LIMIT 0 , 20;
       `,
