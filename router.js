@@ -290,7 +290,7 @@ router
             * sin( radians( Latitude ) )
           )
         ) AS distance
-      FROM Attraction
+      FROM attraction
       HAVING distance < 25
       ORDER BY distance
       LIMIT 0 , 20;
@@ -558,7 +558,7 @@ router
             * sin( radians( Latitude ) )
           )
         ) AS distance
-      FROM Attraction
+      FROM attraction
       HAVING distance < 25
       ORDER BY distance
       LIMIT 0 , 20;
