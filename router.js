@@ -22,10 +22,6 @@ const mail = require('./mail.js');
 // `schedules`
 // @id          primary key
 // @name        varchar(255)
-// @address     varchar(255)
-// @lat         double
-// @lng         double
-// @arrive_time timestamp
 // @uid         foreign key REFERENCES users(id)
 //
 // `paths`
@@ -135,37 +131,40 @@ router
     const userId = ctx.session.uid;
 
     ctx.body = await mysql.query(
-      'SELECT * FROM `schedule` WHERE `uid` = ?',
+      `
+      SELECT schedules.id, schedules.name, paths.id as pid, lat, lng, address, arrive_time
+      FROM paths
+      JOIN schedules
+      ON paths.sid = schedules.id
+      WHERE uid = ?
+      ORDER BY schedules.id;
+      `,
       [ userId ]
     );
   })
-  .get('/api/schedules/:id', signinRequired, async ctx => {
-    const userId = ctx.session.uid;
-    const scheduleId = ctx.params.id;
-
-    ctx.body = await mysql.query(
-      'SELECT * FROM `schedules` WHERE `id` = ? AND `uid` = ?',
-      [ scheduleId, userId ]
-    );
-  })
-  .post('/api/schedule', signinRequired, async ctx => {
+  .post('/api/schedules', signinRequired, async ctx => {
     const newSchedule = {
       name:    ctx.request.body.name,
-      address: ctx.request.body.address,
-      lat:     ctx.request.body.lat,
-      lng:     ctx.request.body.lng,
       uid:     ctx.session.uid,
     };
 
     // Insert new schedule into database.
-    await mysql.query(
-      'INSERT INTO `schedules` SET ?',
-      newSchedule
-    );
-
+    await mysql.query('INSERT INTO `schedules` SET ?', newSchedule);
     ctx.body = { message: 'Add schedule success!' };
   })
-  .put('/api/schedules/:id', signinRequired, async ctx => {
+  .post('/api/paths', signinRequired, async ctx => {
+    const newPath = {
+      sid: ctx.request.body.sid,
+      lat: ctx.request.body.lat,
+      lng: ctx.request.body.lng,
+      address: ctx.request.body.address,
+      arrive_time: ctx.request.body.arrive_time,
+    };
+
+    await mysql.query('INSERT INTO paths SET ?', newPath);
+    ctx.body = { message: 'Add path success!!' };
+  })
+  .put('/api/schedule/:id', signinRequired, async ctx => {
     const userId = ctx.session.uid;
     const { name, address, lat, lng } = ctx.request.body;
 
@@ -387,6 +386,9 @@ router
       'SELECT * FROM `schedules` WHERE `id` = ?',
       [ scheduleId ]
     );
+  })
+  .get('/debug/paths', async ctx => {
+    ctx.body = await mysql.query('SELECT * FROM paths');
   })
   .get('/debug/toilet', async ctx => {
     // Check query string format.
