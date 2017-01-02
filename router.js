@@ -22,6 +22,7 @@ const mail = require('./mail.js');
 // `schedules`
 // @id          primary key
 // @name        varchar(255)
+// @start       timestamp
 // @uid         foreign key REFERENCES users(id)
 //
 // `paths`
@@ -133,7 +134,7 @@ router
 
     ctx.body = await mysql.query(
       `
-      SELECT schedules.id, schedules.name as schedule_name, paths.id as path_id, paths.name as path_name, lat, lng, address, arrive_time
+      SELECT schedules.id, schedules.name as schedule_name, schedule.start as schedule_start, paths.id as path_id, paths.name as path_name, lat, lng, address, arrive_time
       FROM paths
       JOIN schedules
       ON paths.sid = schedules.id
@@ -145,8 +146,9 @@ router
   })
   .post('/api/schedules', signinRequired, async ctx => {
     const newSchedule = {
-      name:    ctx.request.body.name,
-      uid:     ctx.session.uid,
+      uid:   ctx.session.uid,
+      name:  ctx.request.body.name,
+      start: ctx.request.body.start,
     };
 
     // Insert new schedule into database.
