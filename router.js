@@ -132,17 +132,19 @@ router
   .get('/api/schedules', signinRequired, async ctx => {
     const userId = ctx.session.uid;
 
-    ctx.body = await mysql.query(
-      `
-      SELECT schedules.id, schedules.name as schedule_name, schedules.start as schedule_start, paths.id as path_id, paths.name as path_name, lat, lng, address, arrive_time
-      FROM paths
-      JOIN schedules
-      ON paths.sid = schedules.id
-      WHERE uid = 2
-      ORDER BY schedules.id;
-      `,
-      [ userId ]
+    const result = await mysql.query(
+      `SELECT * FROM schedules WHERE uid = ?`, [ userId ]
     );
+
+    for (let i = 0; i < result.length; i++) {
+      const result2 = await mysql.query(
+        `SELECT * FROM paths WHERE sid = ?`, [ result[i].id ]
+      );
+
+      result[i].path = result2;
+    }
+
+    ctx.body = result;
   })
   .post('/api/schedules', signinRequired, async ctx => {
     const newSchedule = {
