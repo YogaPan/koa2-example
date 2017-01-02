@@ -214,7 +214,7 @@ router
       `
       SELECT
         *, (
-          6371 * acos (
+          6371 * 1000 * acos (
             cos ( radians( ? ) )
             * cos( radians( Latitude ) )
             * cos( radians( Longitude ) - radians( ? ) )
@@ -248,7 +248,7 @@ router
       `
       SELECT
         *, (
-          6371 * acos (
+          6371 * 1000 * acos (
             cos ( radians( ? ) )
             * cos( radians( Latitude ) )
             * cos( radians( Longitude ) - radians( ? ) )
@@ -282,7 +282,7 @@ router
       `
       SELECT
         *, (
-          6371 * acos (
+          6371 * 1000 * acos (
             cos ( radians( ? ) )
             * cos( radians( Latitude ) )
             * cos( radians( Longitude ) - radians( ? ) )
@@ -482,7 +482,7 @@ router
       `
       SELECT
         *, (
-          6371 * acos (
+          6371 * 1000 * acos (
             cos ( radians( ? ) )
             * cos( radians( Latitude ) )
             * cos( radians( Longitude ) - radians( ? ) )
@@ -516,7 +516,7 @@ router
       `
       SELECT
         *, (
-          6371 * acos (
+          6371 * 1000 * acos (
             cos ( radians( ? ) )
             * cos( radians( Latitude ) )
             * cos( radians( Longitude ) - radians( ? ) )
@@ -550,7 +550,7 @@ router
       `
       SELECT
         *, (
-          6371 * acos (
+          6371 * 1000 * acos (
             cos ( radians( ? ) )
             * cos( radians( Latitude ) )
             * cos( radians( Longitude ) - radians( ? ) )
