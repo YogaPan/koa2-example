@@ -223,7 +223,7 @@ router
           )
         ) AS distance
       FROM toilet
-      HAVING distance 5
+      HAVING distance < 5
       ORDER BY distance
       LIMIT 0 , 20;
       `,
@@ -257,7 +257,7 @@ router
           )
         ) AS distance
       FROM hotel
-      HAVING distance 25
+      HAVING distance < 25
       ORDER BY distance
       LIMIT 0 , 20;
       `,
@@ -291,7 +291,7 @@ router
           )
         ) AS distance
       FROM Attraction
-      HAVING distance 25
+      HAVING distance < 25
       ORDER BY distance
       LIMIT 0 , 20;
       `,
