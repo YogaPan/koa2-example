@@ -214,7 +214,7 @@ router
       `
       SELECT
         *, (
-          3959 * acos (
+          6371 * acos (
             cos ( radians( ? ) )
             * cos( radians( Latitude ) )
             * cos( radians( Longitude ) - radians( ? ) )
@@ -421,7 +421,7 @@ router
       `
       SELECT
         *, (
-          3959 * acos (
+          6371 * acos (
             cos ( radians( ? ) )
             * cos( radians( Latitude ) )
             * cos( radians( Longitude ) - radians( ? ) )
