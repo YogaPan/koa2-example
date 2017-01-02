@@ -26,6 +26,7 @@ const mail = require('./mail.js');
 //
 // `paths`
 // @id          primary key
+// @name        varchar(255)
 // @lat         double
 // @lng         double
 // @address     varchar(255)
@@ -132,11 +133,11 @@ router
 
     ctx.body = await mysql.query(
       `
-      SELECT schedules.id, schedules.name, paths.id as pid, lat, lng, address, arrive_time
+      SELECT schedules.id, schedules.name as schedule_name, paths.id as path_id, paths.name as path_name, lat, lng, address, arrive_time
       FROM paths
       JOIN schedules
       ON paths.sid = schedules.id
-      WHERE uid = ?
+      WHERE uid = 2
       ORDER BY schedules.id;
       `,
       [ userId ]
@@ -155,6 +156,7 @@ router
   .post('/api/paths', signinRequired, async ctx => {
     const newPath = {
       sid: ctx.request.body.sid,
+      name: ctx.request.body.name,
       lat: ctx.request.body.lat,
       lng: ctx.request.body.lng,
       address: ctx.request.body.address,
@@ -177,8 +179,17 @@ router
   })
   .del('/api/schedules/:id', signinRequired, async ctx => {
     const scheduleId = ctx.params.id;
-    await mysql.query('DELETE FROM `schedules` WHERE `id` = ?', [ scheduleId ]);
+
+    await mysql.query('DELETE FROM paths WHERE sid = ?', [ scheduleId ]);
+    await mysql.query('DELETE FROM schedules WHERE id = ?', [ scheduleId ]);
+
     ctx.body = { messaeg: 'Delete schedule success!' };
+  })
+  .del('/api/paths/:id', signinRequired, async ctx => {
+    const pathId = ctx.params.id;
+
+    await mysql.query('DELETE FROM paths WHERE id = ?', [ pathId ]);
+    ctx.body = { message: 'Delete path success!' };
   });
 
 // Send back open data.
