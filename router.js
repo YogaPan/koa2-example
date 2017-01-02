@@ -134,7 +134,7 @@ router
 
     ctx.body = await mysql.query(
       `
-      SELECT schedules.id, schedules.name as schedule_name, schedule.start as schedule_start, paths.id as path_id, paths.name as path_name, lat, lng, address, arrive_time
+      SELECT schedules.id, schedules.name as schedule_name, schedules.start as schedule_start, paths.id as path_id, paths.name as path_name, lat, lng, address, arrive_time
       FROM paths
       JOIN schedules
       ON paths.sid = schedules.id
