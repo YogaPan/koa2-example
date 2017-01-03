@@ -160,10 +160,10 @@ router
   .post('/api/paths', signinRequired, async ctx => {
     const newPath = {
       sid: ctx.request.body.sid,
-      name: ctx.request.body.name,
+      name: decodeURIComponent(ctx.request.body.name),
       lat: ctx.request.body.lat,
       lng: ctx.request.body.lng,
-      address: ctx.request.body.address,
+      address: decodeURIComponent(ctx.request.body.address),
       arrive_time: ctx.request.body.arrive_time,
     };
 
