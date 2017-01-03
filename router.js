@@ -149,7 +149,7 @@ router
   .post('/api/schedules', signinRequired, async ctx => {
     const newSchedule = {
       uid:   ctx.session.uid,
-      name:  ctx.request.body.name,
+      name:  decodeURIComponent(ctx.request.body.name),
       start: ctx.request.body.start,
     };
 
