@@ -1,4 +1,5 @@
 const config = require('./config.json');
+var nodemailer = require('nodemailer');
 
 const api_key = config.mailgun.api_key;
 const domain  = config.mailgun.domain;
@@ -16,27 +17,62 @@ function generateRandomHash() {
   return token;
 }
 
-// Send verify email and return verify token.
-module.exports.sendActivateMail = function(mailAddress) {
+module.exports.sendActiveMail = function() {
   const token = generateRandomHash();
 
-  const data = {
-    from: 'Urban Walks <me@samples.mailgun.org>',
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: 'yogapan85321@gmail.com',
+      pass: 'buoy-york-alewife-criminal'
+    }
+  });
+
+  const options = {
+    from: '123@gmail.com',
     to: mailAddress,
-    subject: 'Hello to Urban Walks!!',
+    subject: 'Welcome to Urban Walks!!',
     text: `
     Welcome to join our service!
-    to activate your account you have to
+    to activate your account click this url:
     http://140.136.148.215:3000/verify/${token}
     `
   };
 
-  // Use mailgun service to send email to user.
-  mailgun.messages().send(data, (error, body) => {
-    if (error)
-      return console.error(error);
-    // console.log(body);
+  transporter.sendMail(options,(error, info) => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(info.response);
+    }
   });
+} 
 
-  return token;
-};
+// Send verify email and return verify token.
+// module.exports.sendActivateMail = function(mailAddress) {
+  // const token = generateRandomHash();
+
+  // const data = {
+    // from: 'Urban Walks <me@samples.mailgun.org>',
+    // to: mailAddress,
+    // subject: 'Hello to Urban Walks!!',
+    // text: `
+    // Welcome to join our service!
+    // to activate your account you have to
+    // http://140.136.148.215:3000/verify/${token}
+    // `
+  // };
+
+  // Use mailgun service to send email to user.
+  // mailgun.messages().send(data, (error, body) => {
+    // if (error)
+      // return console.error(error);
+    // console.log(body);
+  // });
+
+  // return token;
+// };
+
+// sendActiveMail('hank84112092@gmail.com');
+// sendActiveMail('yogapan85321@gmail.com');
+
