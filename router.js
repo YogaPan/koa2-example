@@ -333,11 +333,13 @@ router
       const hash = result[0].password;
       const match = await bcrypt.compare(user.password, hash);
 
-      // Success!
       if (match) {
-        ctx.session.uid = result[0].id;
-        ctx.body = { message: 'Sign in successfully!' };
-        return;
+        // Success!
+        if (result[0].active === 1)
+          ctx.session.uid = result[0].id;
+          return ctx.body = { message: 'Sign in successfully!' };
+        else
+          return ctx.body = { message: 'You have to active your account!' };
       }
     }
     // Failed!
