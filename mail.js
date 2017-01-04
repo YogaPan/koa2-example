@@ -17,7 +17,7 @@ function generateRandomHash() {
   return token;
 }
 
-module.exports.sendActiveMail = function() {
+module.exports.sendActivateMail = function() {
   const token = generateRandomHash();
 
   const transporter = nodemailer.createTransport({
