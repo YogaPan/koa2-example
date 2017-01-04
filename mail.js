@@ -46,6 +46,8 @@ module.exports.sendActiveMail = function() {
       console.log(info.response);
     }
   });
+
+  return token;
 } 
 
 // Send verify email and return verify token.
