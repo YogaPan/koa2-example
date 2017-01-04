@@ -335,11 +335,13 @@ router
 
       if (match) {
         // Success!
-        if (result[0].active === 1)
+        if (result[0].active === 1) {
           ctx.session.uid = result[0].id;
           return ctx.body = { message: 'Sign in successfully!' };
-        else
+        }
+        else {
           return ctx.body = { message: 'You have to active your account!' };
+        }
       }
     }
     // Failed!
