@@ -21,12 +21,15 @@ module.exports.sendActivateMail = function(mailAddress) {
   const token = generateRandomHash();
 
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    service: 'Gmail'
     auth: {
       user: 'yogapan85321@gmail.com',
-      pass: 'buoy-york-alewife-criminal'
     }
   });
+
+  const options = {
+    from: 'sdf',
+  };
 
   const options = {
     from: '123@gmail.com',
